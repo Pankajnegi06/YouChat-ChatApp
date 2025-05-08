@@ -11,6 +11,7 @@ import axios from "axios";
 import moment from "moment";
 import React, { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { API_ENDPOINTS } from "@/lib/apiConfig";
 
 function MessageContainer() {
   const dispatch = useDispatch();
@@ -30,7 +31,7 @@ function MessageContainer() {
     const getMessages = async () => {
       try {
         const response = await axios.post(
-          "http://localhost:8000/messages/getMessagesForContact",
+          API_ENDPOINTS.messages.getMessagesForContact,
           { id: selectedChatId },
           { withCredentials: true }
         );

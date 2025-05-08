@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { DirectMessages, setDirectMessagesContacts } from "@/store/chatSlice";
 import ContactList from "@/components/ui/contacts-list";
 import axios from "axios";
+import { API_ENDPOINTS } from "@/lib/apiConfig";
 
 function ContactContainer() {
   const dispatch = useDispatch();
@@ -12,7 +13,7 @@ function ContactContainer() {
   useEffect(() => {
     const getContacts = async () => {
       const response = await axios.get(
-        "http://localhost:8000/contacts/getContactDmList",
+        API_ENDPOINTS.contacts.getContactList,
         { withCredentials: true }
       );
 

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import axios from "axios";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { API_ENDPOINTS } from "@/lib/apiConfig";
 
 function Profile() {
   const user = useSelector(selectUser);
@@ -65,12 +66,12 @@ function Profile() {
           // 📷 If image uploaded, append image only
           formData.append("image", image);
         } else {
-          // 🎨 If no image, use color index
+          // If no image, use color index
           formData.append("color", selectedcolor.toString());
         }
     
         const response = await axios.post(
-          "http://localhost:8000/user/ProfileSetup",
+          API_ENDPOINTS.user.profileSetup,
           formData,
           {
             withCredentials: true,

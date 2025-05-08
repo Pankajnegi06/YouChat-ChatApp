@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 import { IoPowerSharp } from "react-icons/io5";
 import axios from "axios";
 import { toast } from "sonner";
+import { API_ENDPOINTS } from "@/lib/apiConfig";
 
 function ProfileInfo() {
   const user = useSelector(selectUser) 
@@ -21,7 +22,7 @@ function ProfileInfo() {
     const dispatch = useDispatch()
     const handleLogout = async() => {
         try {
-            const response = await axios.get("http://localhost:8000/user/logout",{withCredentials:true});
+            const response = await axios.get(API_ENDPOINTS.user.logout, {withCredentials:true});
             
             if(response.status == 200){
                 dispatch(clearUserInfo())

@@ -1,9 +1,13 @@
 import axios from 'axios';
 import { toast } from 'sonner';
 
+// Get the API URLs from environment variables
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+const USER_API_PATH = import.meta.env.VITE_USER_API_PATH || '/user';
+
 // Create an axios instance
 const api = axios.create({
-  baseURL: 'http://localhost:8000/user',
+  baseURL: `${API_BASE_URL}${USER_API_PATH}`,
   withCredentials: true, // Important for cookies
   headers: {
     'Content-Type': 'application/json',

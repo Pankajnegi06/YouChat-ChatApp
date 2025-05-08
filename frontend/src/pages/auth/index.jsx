@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { selectUser } from "@/store/userSlice";
 import { setUserInfo } from "@/store/userSlice.js";
+import { API_ENDPOINTS } from "@/lib/apiConfig";
 
 function Auth() {
  
@@ -73,7 +74,7 @@ function Auth() {
 
   const handleLogin = async () => {
     if (validateLogin()) {
-      const response = await axios.post("http://localhost:8000/user/login", {email,password}, {withCredentials:true})
+      const response = await axios.post(API_ENDPOINTS.user.login, {email,password}, {withCredentials:true})
       dispatch(setUserInfo(response.data.user))
       if(response.data.user.profileSetup) navigate("/chat")
       else navigate("/profile")
@@ -82,7 +83,7 @@ function Auth() {
 
   const handleSignup = async () => {
     if (validateSignup()) {
-      const response = await axios.post("http://localhost:8000/user/signup",{email,password},{withCredentials:true})
+      const response = await axios.post(API_ENDPOINTS.user.signup, {email,password}, {withCredentials:true})
      
       if(response.status == 200) {
         

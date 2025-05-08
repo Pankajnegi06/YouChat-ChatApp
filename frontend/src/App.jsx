@@ -9,6 +9,7 @@ import { useEffect, useState } from "react"
 import api from "./lib/axios.js"
 import { toast } from "sonner"
 import axios from "axios"
+import { API_ENDPOINTS } from "./lib/apiConfig"
 
 
 function App() {
@@ -31,7 +32,7 @@ function App() {
 
   const getUserInfo = async () => {
     try {
-      const response = await axios.get("http://localhost:8000/user/getUserInfo",{withCredentials:true});
+      const response = await axios.get(API_ENDPOINTS.user.getUserInfo, {withCredentials:true});
       
       if (response.data.success) {
         dispatch(setUserInfo(response.data.user));

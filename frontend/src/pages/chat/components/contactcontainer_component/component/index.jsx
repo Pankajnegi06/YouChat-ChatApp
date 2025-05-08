@@ -25,6 +25,7 @@ import {
   setSelectedChatData,
   setSelectedChatType,
 } from "@/store/chatSlice";
+import { API_ENDPOINTS } from "@/lib/apiConfig";
 
 function NewDm() {
   const dispatch = useDispatch();
@@ -46,7 +47,7 @@ function NewDm() {
 
     try {
       const response = await axios.post(
-        "http://localhost:8000/contacts/SearchContacts",
+        API_ENDPOINTS.contacts.searchContacts,
         { searchTerm: trimmedTerm },
         { withCredentials: true }
       );

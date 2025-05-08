@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useRef, useState, useCallback } f
 import { IoConstructOutline } from "react-icons/io5";
 import { useDispatch, useSelector } from "react-redux";
 import { io } from "socket.io-client";
+import { SOCKET_URL, getSocketConfig } from "@/lib/apiConfig";
 
 const socketContext = createContext(null);
 
@@ -72,8 +73,9 @@ export const SocketProvider = ({ children }) => {
             console.log('Initializing socket connection for user:', userInfo._id);
             setConnectionError(null);
 
-            socket.current = io("http://localhost:8000", { 
-                withCredentials: true,
+            const socketConfig = getSocketConfig();
+            socket.current = io(socketConfig.url, { 
+                ...socketConfig.options,
                 query: { userId: userInfo._id },
                 reconnectionAttempts: 5,
                 reconnectionDelay: 1000,
