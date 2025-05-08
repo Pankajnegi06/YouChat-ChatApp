@@ -2,7 +2,12 @@
 
 YouChat is a modern real-time chat application with user authentication, direct messaging, profile management, and real-time communication capabilities.
 
-![YouChat App](https://placeholder-for-app-screenshot.com)
+<!-- Add a screenshot of your application here -->
+<!-- Example: ![YouChat App](./screenshots/app-screenshot.png) -->
+
+<div align="center">
+  <i>YouChat - Modern messaging for everyone</i>
+</div>
 
 ## Features
 
@@ -169,4 +174,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ---
 
-Created by [Your Name]
+Created by [Pankaj Negi](https://github.com/Pankajnegi06)
