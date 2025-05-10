@@ -33,7 +33,7 @@ setupSocket(server);
 
 // CORS configuration
 const corsOptions = {
-  origin: ['http://localhost:5173','https://you-chat-chat-app-kmi1.vercel.app', 'https://youchat-app.windsurf.build', 'https://youchat-app-api.netlify.app', 'https://you-chat-chat-app-wie6.vercel.app', 'https://youchat-chatapp.onrender.com'],
+  origin: ['http://localhost:5173','https://you-chat-chat-app-kmi1.vercel.app', 'https://youchat-app.windsurf.build', 'https://youchat-app-api.netlify.app', 'https://you-chat-chat-app-wie6.vercel.app', 'https://youchat-chatapp.onrender.com', 'https://you-chat-chat-app.vercel.app'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -43,7 +43,7 @@ const corsOptions = {
 // Apply CORS middleware
 app.use(cors(corsOptions));
 app.use((req, res, next) => {
-  const allowedOrigins = ['http://localhost:5173','https://you-chat-chat-app-kmi1.vercel.app', 'https://youchat-app.windsurf.build', 'https://youchat-app-api.netlify.app', 'https://you-chat-chat-app-wie6.vercel.app', 'https://youchat-chatapp.onrender.com'];
+  const allowedOrigins = ['http://localhost:5173','https://you-chat-chat-app-kmi1.vercel.app', 'https://youchat-app.windsurf.build', 'https://youchat-app-api.netlify.app', 'https://you-chat-chat-app-wie6.vercel.app', 'https://youchat-chatapp.onrender.com', 'https://you-chat-chat-app.vercel.app'];
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
     res.header('Access-Control-Allow-Origin', origin);
