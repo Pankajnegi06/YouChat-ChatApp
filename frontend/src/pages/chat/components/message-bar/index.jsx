@@ -12,6 +12,7 @@ const MessageBar = () => {
     const user = useSelector(selectUser);
     const dispatch = useDispatch();
     const { selectedChatData } = useSelector(chatData);
+    const currentMessages = useSelector(state => state.chat.selectedChatMessages);
     const { socket } = useSocket();
 
     const [message, setMessage] = useState("");
@@ -45,10 +46,17 @@ const MessageBar = () => {
             receiver: selectedChatData?.contactId,
             messageType: "text",
             fileUrl: null,
-            sender: user._id
+            sender: user._id,
+            createdAt: new Date().toISOString() // Add timestamp for UI display
         };
         
+        // Send message to server
         socket.emit("sendMessage", messageData);
+        
+        // Add message to local state for immediate display
+        dispatch(setSelectedChatMessages([...currentMessages, messageData]));
+        
+        // Clear input field
         setMessage("");
     };
 

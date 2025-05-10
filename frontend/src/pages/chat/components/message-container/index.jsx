@@ -65,7 +65,8 @@ function MessageContainer() {
       // Ensure it belongs to the current chat
       const isSameChat = newMessage.receiver === selectedChatId || newMessage.sender === selectedChatId;
       if (isSameChat) {
-        dispatch(setSelectedChatMessages([...selectedChatMessages, newMessage]));
+        // Use the functional update form to avoid stale state
+        dispatch(addNewMessage(newMessage));
       }
     };
 
@@ -74,7 +75,7 @@ function MessageContainer() {
     return () => {
       socket.off("receiveMessage", handleReceiveMessage);
     };
-  }, [socket, selectedChatId, selectedChatMessages, selectedChatMessages]);
+  }, [socket, selectedChatId, dispatch]);
 
   const renderDmMessages = (message) => {
     const messageText =
