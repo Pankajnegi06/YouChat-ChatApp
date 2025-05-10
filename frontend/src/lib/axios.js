@@ -1,9 +1,9 @@
 import axios from 'axios';
 import { toast } from 'sonner';
 
-// Get the API URLs from environment variables
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
-const USER_API_PATH = import.meta.env.VITE_USER_API_PATH || '/user';
+// Hardcoded production API URLs
+const API_BASE_URL = 'https://youchat-chatapp.onrender.com';
+const USER_API_PATH = '/user';
 
 // Create an axios instance
 const api = axios.create({
