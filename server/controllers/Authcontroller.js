@@ -190,24 +190,22 @@ export const ProfileSetup = async (req, res) => {
   }
 };
 
-export const logout = async (req,res) => {
-    try {
-        res.clearCookie('accessToken', {
-            httpOnly: true,
-            secure: true, // use only over HTTPS
-            sameSite: 'Strict', // or 'Lax'
-          });
-        res.clearCookie('refreshToken', {
-            httpOnly: true,
-            secure: true, // use only over HTTPS
-            sameSite: 'Strict', // or 'Lax'
-          });
-         
-          
-          res.status(200).json({ message: 'Logged out successfully.' });
-    } catch (error) {
-        res.status(400).json({msg:"Couldnt logout user."})
-    }
+export const logout = async (req, res) => {
+  try {
+    const options = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+      path: "/",
+    };
+    
+    res.clearCookie('accessToken', options);
+    res.clearCookie('refreshToken', options);
+    
+    res.status(200).json({ message: 'Logged out successfully.' });
+  } catch (error) {
+    res.status(400).json({msg: "Couldn't logout user."})
+  }
 }
 
 export const token = async (req,res) => {
