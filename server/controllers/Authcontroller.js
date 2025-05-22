@@ -73,8 +73,9 @@ export const SignUp = async (req, res) => {
 export const Login = async (req, res) => {
   try {
     const { email, password } = req.body;
-
+    
     if (!email || !password) {
+      
       return res.status(400).json({ msg: "All fields are required" });
     }
 
@@ -82,11 +83,13 @@ export const Login = async (req, res) => {
     const user = await User.findOne({ email }).select("+password");
 
     if (!user) {
+ 
       return res.status(404).json({ msg: "User not found" });
     }
 
     const passwordMatch = await bcrypt.compare(password, user.password);
     if (!passwordMatch) {
+      console.log(passwordMatch)
       return res.status(400).json({ msg: "Incorrect password" });
     }
 
