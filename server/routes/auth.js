@@ -6,7 +6,7 @@ import { verifyjwt } from '../middlewares/verifyjwt.js';
 const router = express.Router();
 
 router.route("/signup").post(upload.single("image"), SignUp);
-router.route("/login").post(Login);
+router.route("/Login").post(Login);
 router.get("/getUserInfo", verifyjwt, getUserInfo);
 router.post("/ProfileSetup", verifyjwt,upload.single("image"), ProfileSetup);
 
