@@ -74,12 +74,37 @@ function Auth() {
 
   const handleLogin = async () => {
     if (validateLogin()) {
-      console.log(API_ENDPOINTS.user.Login,email,password)
-      const response = await axios.post(API_ENDPOINTS.user.Login, {email,password}, {withCredentials:true})
-      console.log(response)
-      dispatch(setUserInfo(response.data.user))
-      if(response.data.user.profileSetup) navigate("/chat")
-      else navigate("/profile")
+      try {
+        console.log("Login attempt with:", API_ENDPOINTS.user.Login, {email, password});
+        const response = await axios.post(API_ENDPOINTS.user.Login, {email, password}, {withCredentials: true});
+        console.log("Login response:", response);
+        
+        if (response.data && response.data.user) {
+          dispatch(setUserInfo(response.data.user));
+          toast.success("Login successful!");
+          if(response.data.user.profileSetup) navigate("/chat");
+          else navigate("/profile");
+        } else {
+          toast.error("Invalid response from server");
+          console.error("Invalid response format:", response);
+        }
+      } catch (error) {
+        console.error("Login error:", error);
+        if (error.response) {
+          // The request was made and the server responded with a status code
+          // that falls out of the range of 2xx
+          console.error("Error response:", error.response.data);
+          toast.error(error.response.data.msg || "Login failed. Please check your credentials.");
+        } else if (error.request) {
+          // The request was made but no response was received
+          console.error("No response received:", error.request);
+          toast.error("Cannot connect to the server. Please try again later.");
+        } else {
+          // Something happened in setting up the request that triggered an Error
+          console.error("Request error:", error.message);
+          toast.error("An error occurred. Please try again.");
+        }
+      }
     }
   };
 
