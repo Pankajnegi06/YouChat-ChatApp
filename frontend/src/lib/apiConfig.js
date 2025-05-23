@@ -1,6 +1,4 @@
-// apiConfig.js - Central configuration for all API endpoints
 
-// Base URLs from environment variables with hardcoded production URLs
 export const API_BASE_URL = 'https://youchat-chatapp.onrender.com' ;
 export const USER_API_PATH = '/user';
 export const SOCKET_URL = 'https://youchat-chatapp.onrender.com' 
