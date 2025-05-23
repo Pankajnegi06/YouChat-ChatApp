@@ -11,7 +11,7 @@ export const API_ENDPOINTS = {
   // User endpoints
   user: {
     base: USER_API_URL,
-    login: `${API_BASE_URL}/user/Login`,
+    Login: `${API_BASE_URL}/user/Login`,
     signup: `${API_BASE_URL}/user/signup`,
     logout: `${API_BASE_URL}/user/logout`,
     refreshToken: `${API_BASE_URL}/user/refresh-token`,

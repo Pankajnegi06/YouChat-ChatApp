@@ -74,8 +74,8 @@ function Auth() {
 
   const handleLogin = async () => {
     if (validateLogin()) {
-      console.log(API_ENDPOINTS.user.login,email,password)
-      const response = await axios.post(API_ENDPOINTS.user.login, {email,password}, {withCredentials:true})
+      console.log(API_ENDPOINTS.user.Login,email,password)
+      const response = await axios.post(API_ENDPOINTS.user.Login, {email,password}, {withCredentials:true})
       console.log(response)
       dispatch(setUserInfo(response.data.user))
       if(response.data.user.profileSetup) navigate("/chat")
