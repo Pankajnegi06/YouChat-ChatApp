@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { chatData, setSelectedChatMessages } from "@/store/chatSlice";
+import { chatData, addNewMessage } from "@/store/chatSlice";
 import { useSocket } from "@/socketContext";
 import { useState, useRef, useEffect } from "react";
 import EmojiPicker from 'emoji-picker-react';
@@ -43,18 +43,19 @@ const MessageBar = () => {
 
         const messageData = {
             content: message,
-            receiver: selectedChatData?.contactId,
+            receiver: [{ _id: selectedChatData?.contactId }], 
             messageType: "text",
             fileUrl: null,
-            sender: user._id,
-            createdAt: new Date().toISOString() // Add timestamp for UI display
+            sender: { _id: user._id }, 
+            _id: `temp-${Date.now()}`, 
+            createdAt: new Date().toISOString() 
         };
         
         // Send message to server
         socket.emit("sendMessage", messageData);
         
         // Add message to local state for immediate display
-        dispatch(setSelectedChatMessages([...currentMessages, messageData]));
+        dispatch(addNewMessage(messageData));
         
         // Clear input field
         setMessage("");

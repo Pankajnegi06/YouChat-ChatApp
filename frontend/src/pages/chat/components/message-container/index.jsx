@@ -70,10 +70,10 @@ function MessageContainer() {
       }
     };
 
-    socket.on("receiveMessage", handleReceiveMessage);
+    socket.on("receiveMessages", handleReceiveMessage);
 
     return () => {
-      socket.off("receiveMessage", handleReceiveMessage);
+      socket.off("receiveMessages", handleReceiveMessage);
     };
   }, [socket, selectedChatId, dispatch]);
 
