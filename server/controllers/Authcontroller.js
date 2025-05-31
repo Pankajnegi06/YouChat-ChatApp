@@ -19,9 +19,7 @@ export const SignUp = async (req, res) => {
       return res.status(400).json({ msg: "User already exists" });
     }
 
-    // Hash password
-    const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
+   
 
     // Handle file upload
     let imageUrl = "";
@@ -30,7 +28,7 @@ export const SignUp = async (req, res) => {
     }
 
     // Create new user instance
-    const user = new User({ email, password: hashedPassword, image: imageUrl });
+    const user = new User({ email, password, image: imageUrl });
 
     // Generate tokens
     const refreshToken = user.generateRefreshToken();
@@ -87,6 +85,7 @@ export const Login = async (req, res) => {
       return res.status(404).json({ msg: "User not found" });
     }
     console.log("User found:", user.email);
+ 
     console.log("Stored password hash:", user.password);
     console.log("Attempting to compare with password:", password);
     
