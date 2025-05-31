@@ -41,21 +41,33 @@ const MessageBar = () => {
         console.log(selectedChatData)
         if (!message.trim() || !selectedChatData?.contactId) return;
 
+        // Create a proper message object for the socket server
         const messageData = {
             content: message,
-            receiver: [{ _id: selectedChatData?.contactId }], 
+            receiver: selectedChatData?.contactId, // Just the ID as string
             messageType: "text",
             fileUrl: null,
-            sender: { _id: user._id }, 
-            _id: `temp-${Date.now()}`, 
-            createdAt: new Date().toISOString() 
+            sender: user._id, // Just the ID as string
+            createdAt: new Date().toISOString()
         };
+        
+        console.log("Sending message:", messageData);
         
         // Send message to server
         socket.emit("sendMessage", messageData);
         
-        // Add message to local state for immediate display
-        dispatch(addNewMessage({ chatId: selectedChatData._id, message: messageData }));
+        // Also create a temporary message object for local display
+        // This follows the format that matches what we receive from the server
+        const localMessageData = {
+            _id: `temp-${Date.now()}`,
+            content: message,
+            receiver: [{ _id: selectedChatData?.contactId }],
+            sender: { _id: user._id },
+            createdAt: new Date().toISOString()
+        };
+        
+        // Add local message to state for immediate display
+        dispatch(addNewMessage(localMessageData));
         
         // Clear input field
         setMessage("");
