@@ -55,7 +55,7 @@ const MessageBar = () => {
         socket.emit("sendMessage", messageData);
         
         // Add message to local state for immediate display
-        dispatch(addNewMessage(messageData));
+        dispatch(addNewMessage({ chatId: selectedChatData._id, message: messageData }));
         
         // Clear input field
         setMessage("");
