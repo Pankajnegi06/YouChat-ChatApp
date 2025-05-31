@@ -37,27 +37,31 @@ const MessageBar = () => {
     };
 
     const handleSendMessage = () => {
-        console.log(message)
-        console.log(selectedChatData)
-        if (!message.trim() || !selectedChatData?.contactId) return;
+        console.log("Message content:", message);
+        console.log("Selected chat data:", selectedChatData);
+        
+        if (!message.trim() || !selectedChatData?.contactId) {
+            console.log("Missing message content or contact ID");
+            return;
+        }
 
-        // Create a proper message object for the socket server
+        // Format the message properly for the server
+        // The receiver must be an array of IDs to match the Message schema
         const messageData = {
             content: message,
-            receiver: selectedChatData?.contactId, // Just the ID as string
+            receiver: [selectedChatData?.contactId], // Array with single ID to match schema
             messageType: "text",
             fileUrl: null,
-            sender: user._id, // Just the ID as string
+            sender: user._id,
             createdAt: new Date().toISOString()
         };
         
-        console.log("Sending message:", messageData);
+        console.log("Sending message to server:", messageData);
         
         // Send message to server
         socket.emit("sendMessage", messageData);
         
-        // Also create a temporary message object for local display
-        // This follows the format that matches what we receive from the server
+        // Also create a temporary message for immediate display
         const localMessageData = {
             _id: `temp-${Date.now()}`,
             content: message,
@@ -65,6 +69,8 @@ const MessageBar = () => {
             sender: { _id: user._id },
             createdAt: new Date().toISOString()
         };
+        
+        console.log("Adding local message to state:", localMessageData);
         
         // Add local message to state for immediate display
         dispatch(addNewMessage(localMessageData));
