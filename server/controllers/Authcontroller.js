@@ -86,11 +86,16 @@ export const Login = async (req, res) => {
  
       return res.status(404).json({ msg: "User not found" });
     }
-
+    console.log("User found:", user.email);
+    console.log("Stored password hash:", user.password);
+    console.log("Attempting to compare with password:", password);
+    
     const passwordMatch = await bcrypt.compare(password, user.password);
+    console.log("Password match result:", passwordMatch);
+    
     if (!passwordMatch) {
-      console.log(passwordMatch)
-      return res.status(400).json({ msg: "Incorrect password" });
+     console.log("Password comparison failed");
+      return res.status(400).json({ msg: "Incorrect password dfa" });
     }
 
     const refreshToken = user.generateRefreshToken();
@@ -120,7 +125,7 @@ export const Login = async (req, res) => {
         user: userWithoutSensitiveData,
       });
   } catch (error) {
-    console.error(error);
+    console.error("Login error:", error);
     return res.status(500).json({ msg: "Couldn't log in user" });
   }
 };
@@ -283,7 +288,7 @@ export const getContactsDmList = async (req, res) => {
       {
         $unwind: "$contactInfo"
       },
-      // 🔥 Add this stage to ensure only other users are included
+      // 
       {
         $match: {
           contactId: { $ne: userId }
