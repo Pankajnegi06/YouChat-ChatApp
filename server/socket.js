@@ -1,5 +1,6 @@
 import { Server as SocketIoServer } from "socket.io";
 import { Message } from "./models/message.model.js";
+import { generateEmbeddingForMessage } from "./middlewares/Embedding.js";
 
 const userSocketMap = new Map();
 
@@ -42,6 +43,7 @@ export const setupSocket = (server) => {
         
                 const newMessage = new Message(message);
                 const savedMessage = await newMessage.save();
+                await generateEmbeddingForMessage(savedMessage);
                 console.log(savedMessage)
         
                 const messageData = await Message.findById(savedMessage._id)
@@ -62,5 +64,5 @@ export const setupSocket = (server) => {
         
     });
 
-    return io;
+    return io;  
 };

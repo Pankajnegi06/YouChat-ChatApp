@@ -39,17 +39,18 @@ const MessageBar = () => {
     const handleSendMessage = () => {
         console.log("Message content:", message);
         console.log("Selected chat data:", selectedChatData);
-        
-        if (!message.trim() || !selectedChatData?.contactId) {
+      
+        if (!message.trim() || !(selectedChatData?.contactId || selectedChatData?._id)) {
             console.log("Missing message content or contact ID");
             return;
         }
+        
 
         // Format the message properly for the server
         // The receiver must be an array of IDs to match the Message schema
         const messageData = {
             content: message,
-            receiver: [selectedChatData?.contactId], // Array with single ID to match schema
+            receiver: [selectedChatData?.contactId || selectedChatData._id], // Array with single ID to match schema
             messageType: "text",
             fileUrl: null,
             sender: user._id,
