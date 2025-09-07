@@ -1,5 +1,7 @@
 import OpenAI from "openai";
 import { Message } from "../models/message.model.js";
+import dotenv from 'dotenv';
+dotenv.config();
 const openai = new OpenAI({ apiKey: process.env.OPENAI_KEY });
 
 async function generateEmbeddingForMessage(message) {
