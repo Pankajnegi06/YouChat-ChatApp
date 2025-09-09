@@ -11,6 +11,7 @@ import { router } from './routes/auth.js';
 import { contacts } from './routes/contacts.js';
 import { setupSocket } from './socket.js';
 import messageRouter from './routes/message.js';
+import ragRouter from './routes/rag.js';
 
 // ES Module equivalent of __dirname
 const __filename = fileURLToPath(import.meta.url);
@@ -64,6 +65,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/user", router);
 app.use("/contacts", contacts);
 app.use("/messages",messageRouter)
+app.use("/search",ragRouter)
 
 // API base route
 app.get('/', (req, res) => {
