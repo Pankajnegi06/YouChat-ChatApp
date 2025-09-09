@@ -2,6 +2,7 @@ import React from 'react'
 import ChatHeader from '../chat-header/index.jsx'
 import MessageContainer from '../message-container/index.jsx'
 import MessageBar from '../message-bar/index.jsx'
+import Rag from '@/components/ui/rag.jsx'
 
 function ChatContainer() {
   return (
@@ -9,6 +10,7 @@ function ChatContainer() {
       <ChatHeader/>
       <MessageContainer/>
       <MessageBar/>
+      <Rag/>
     </div>
   )
 }

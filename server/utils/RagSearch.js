@@ -1,49 +1,53 @@
+import { Message } from "../models/message.model.js";
 import OpenAI from "openai";
-import dotenv from "dotenv";
-dotenv.config();
+import dotenv from "dotenv"
+dotenv.config()
+const openai = new OpenAI({ apiKey: process.env.OPENAI_KEY });
 
-const openai = new OpenAI.create({ApiKey:process.env.OPENAI_API_KEY});
+// RAG search + summarization
+export const searchRag = async (req, res) => {
+  try {
+    const { query } = req.body; // e.g., "Summarize today’s chat with John"
 
-async function searchRag(req,res){
-    try{
-    const {query} = req.body;
-    if(!query){
-        return res.status(400).json({message : "query is required"});
-    }
-    const vectorEmbedding = await openai.embeddings.create({
-        model:"text-embedding-3-small",
-        input:query
+    // Step 1: Embed the query
+    const embeddingResponse = await openai.embeddings.create({
+      model: "text-embedding-3-small",
+      input: query
     });
-    const queryvector = vectorEmbedding.data[0].embedding;
+    const queryVector = embeddingResponse.data[0].embedding;
 
-    const similarDocuments = await Message.aggregate([
-        {$vectorSearch:{
-            index : "vector_index",
-            path : "embedding",
-            limit:10,
-            queryVector:queryvector,
-            numCandidates:50
+    // Step 2: Find similar messages from MongoDB
+    const similarMessages = await Message.aggregate([
+      {
+        $vectorSearch: {
+          index: "vector_index_messages", // Create this index in Atlas
+          queryVector,
+          path: "embedding",
+          numCandidates: 50,
+          limit: 5
         }
-    }
-    ])
-    const context = similarDocuments.map(m=>m.content).join("\n");
+      }
+    ]);
 
-    const completions = await openai.chat.completions.create({
-        model:"gpt-4o-mini",
-        message:[{
-            role:"system",content:"You are a helpful assistant that can answer based on chat history"
-        },
-    {
-        role:"user",content:`User asked : ${query}\n\n Relevant message:\n ${context}`
-    }]
-    })
+    // Step 3: Build context for LLM
+    const context = similarMessages.map(m => m.content).join("\n");
 
-    return res.status(200).json({answer:completions.choices[0].message.content,retrieved : similarDocuments});
+    // Step 4: Ask LLM with retrieved context
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        { role: "system", content: "You are a helpful assistant that answers based on chat history." },
+        { role: "user", content: `Query: ${query}\n\nRelevant messages:\n${context}` }
+      ]
+    });
 
-} catch(error){
-    console.error("Error searching RAG:", error);
-    return res.status(500).json({message:"Error searching RAG"});
-}
-}
+    res.json({
+      answer: completion.choices[0].message.content,
+      retrieved: similarMessages
+    });
 
-export { searchRag };
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "RAG search failed" });
+  }
+};
