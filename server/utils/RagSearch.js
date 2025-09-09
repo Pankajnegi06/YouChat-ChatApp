@@ -8,6 +8,7 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_KEY });
 export const searchRag = async (req, res) => {
   try {
     const { query } = req.body; // e.g., "Summarize today’s chat with John"
+    console.log(query)
 
     // Step 1: Embed the query
     const embeddingResponse = await openai.embeddings.create({
