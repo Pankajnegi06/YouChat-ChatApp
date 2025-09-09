@@ -5,15 +5,15 @@ const Rag = () => {
     const [answer,setAnswer] = useState("");
     const [retrieved,setRetrieved] = useState([]);
     const handleAsk = async () => {
-        const response = await fetch.post("https://youchat-chatapp.onrender.com/search/ask",{query});
+        const response = await axios.post("http://localhost:8000/search/ask",{query});
         setAnswer(response.data.answer);
         setRetrieved(response.data.retrieved);
+        console.log(response,answer,retrieved,"hello");
     }
-    console.log(answer,retrieved,"hello");
   return (
     <div className='bg-black'>
         <input className="bg-white text-black" type="text" value={query} onChange={(e)=>setQuery(e.target.value)} />
-      <button>Ask</button>
+      <button onClick={handleAsk}>Ask</button>
     </div>
   )
 }
