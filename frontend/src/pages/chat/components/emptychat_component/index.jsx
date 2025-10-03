@@ -2,6 +2,7 @@ import { animationDefaultOptions } from '@/pages/utils/index.jsx'
 import React from 'react'
 import Lottie from "react-lottie"
 function EmptyChat() {
+  
   return (
     <div className='flex-1  md:bg-[#1c1d25] md:flex flex-col justify-center items-center duration-1000 hidden transition-all'>
       <Lottie

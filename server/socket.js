@@ -35,16 +35,16 @@ export const setupSocket = (server) => {
             }
         });
 
-        socket.on("sendMessage", async (message) => {
+        socket.on("sendMessage", async (message, ack) => {
             try {
                 console.log(message)
                 const senderSocketId = userSocketMap.get(message.sender);
-                const receiverSocketId = userSocketMap.get(message.receiver);
+                const receiverIds = Array.isArray(message.receiver) ? message.receiver : [message.receiver];
         
                 const newMessage = new Message(message);
                 const savedMessage = await newMessage.save();
                 await generateEmbeddingForMessage(savedMessage);
-                console.log(savedMessage)
+                
         
                 const messageData = await Message.findById(savedMessage._id)
                     .populate("receiver", "id image firstName lastName email color")
@@ -54,11 +54,17 @@ export const setupSocket = (server) => {
                 if (senderSocketId) {
                     io.to(senderSocketId).emit("receiveMessages", messageData);
                 }
-                if (receiverSocketId) {
-                    io.to(receiverSocketId).emit("receiveMessages", messageData);
+                for (const rid of receiverIds) {
+                    const id = typeof rid === 'object' && rid !== null ? rid._id || rid.id : rid;
+                    const recSock = userSocketMap.get(id);
+                    if (recSock) {
+                        io.to(recSock).emit("receiveMessages", messageData);
+                    }
                 }
+                if (typeof ack === 'function') ack({ ok: true, id: savedMessage._id });
             } catch (err) {
                 console.error("Error handling message event:", err);
+                if (typeof ack === 'function') ack({ ok: false });
             }
         });
         

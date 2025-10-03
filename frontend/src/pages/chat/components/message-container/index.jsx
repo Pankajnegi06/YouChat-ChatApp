@@ -9,12 +9,14 @@ import {
 import { selectUser } from "@/store/userSlice";
 import axios from "axios";
 import moment from "moment";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { API_ENDPOINTS } from "@/lib/apiConfig";
+import Rag from "@/components/ui/rag.jsx";
 
 function MessageContainer() {
   const dispatch = useDispatch();
+  const [showRag, setShowRag] = useState(false);
   const userInfo = useSelector(selectUser);
   const selectedChat = useSelector(chatData);
   const selectedChatType = useSelector(chatType);
@@ -64,10 +66,16 @@ function MessageContainer() {
     const handleReceiveMessage = (newMessage) => {
       // Ensure it belongs to the current chat
       const isSameChat = newMessage.receiver === selectedChatId || newMessage.sender === selectedChatId;
-      if (isSameChat) {
-        // Use the functional update form to avoid stale state
-        dispatch(addNewMessage(newMessage));
-      }
+      if (!isSameChat) return;
+
+      // Deduplicate by id if server echoes same message to sender and receiver
+      dispatch((dispatchFn, getState) => {
+        const existing = getState().chat.selectedChatMessages;
+        const already = existing.some(m => (m._id && newMessage._id && m._id === newMessage._id));
+        if (!already) {
+          dispatch(addNewMessage(newMessage));
+        }
+      });
     };
 
     socket.on("receiveMessages", handleReceiveMessage);
@@ -139,11 +147,11 @@ function MessageContainer() {
       );
     });
   };
-
   return (
-    <div className="flex-1 overflow-y-auto scrollbar-hidden p-4 px-8 md:w-[65vw] lg:w-[70vw] xl:w-[80vw] w-full">
-      {renderMessage()}
-    </div>
+    <div className="flex-1 overflow-y-auto scrollbar-hidden p-4 px-8 md:w-[65vw] lg:w-[70vw] xl:w-[80vw] w-full static">
+    {renderMessage()}
+    {showRag && <Rag />}
+  </div>
   );
 }
 

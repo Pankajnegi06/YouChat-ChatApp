@@ -1,16 +1,27 @@
-import React from 'react'
+import React, { useState } from 'react'
 import ChatHeader from '../chat-header/index.jsx'
 import MessageContainer from '../message-container/index.jsx'
 import MessageBar from '../message-bar/index.jsx'
 import Rag from '@/components/ui/rag.jsx'
+import RagSidebar from '../rag-sidebar/index.jsx'
 
 function ChatContainer() {
+  const [showRag, setShowRag] = useState(false)
   return (
     <div className='fixed top-0 h-[100vh] w-[100vw] bg-[#1c1d25] flex flex-col md:static md:flex-1'>
       <ChatHeader/>
       <MessageContainer/>
+      <img
+        width="48px"
+        height="48px"
+        className="absolute bottom-[88px] left-[32px] cursor-pointer z-10"
+        src="https://img.icons8.com/pulsar-gradient/48/why-us-female.png"
+        alt="why-us-female"
+        onClick={() => setShowRag(!showRag)}
+      />
       <MessageBar/>
-      <Rag/>
+      <RagSidebar open={showRag} onClose={() => setShowRag(false)} />
+      
     </div>
   )
 }

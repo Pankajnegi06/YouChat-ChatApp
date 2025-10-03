@@ -1,33 +1,47 @@
-import OpenAI from "openai";
+import dotenv from "dotenv";
 import { Message } from "../models/message.model.js";
-import dotenv from 'dotenv';
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
 dotenv.config();
-const openai = new OpenAI({ apiKey: process.env.OPENAI_KEY });
+
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_KEY);
+
+// Helper to create embeddings with Gemini
+async function createEmbedding(text) {
+  try {
+    const model = genAI.getGenerativeModel({ model: "text-embedding-004" });
+    const result = await model.embedContent(text);
+    return result.embedding.values; // ✅ returns array of floats
+  } catch (error) {
+    console.error("❌ Error creating embedding:", error);
+    return [];
+  }
+}
 
 async function generateEmbeddingForMessage(message) {
-    if (message.messageType !== "text") {
-        // For non-text messages, ensure embedding is set to default
-        message.embedding = [];
-        await message.save();
-        return;
-    }
+  // Case 1: raw string
+  if (typeof message === "string") {
+    return await createEmbedding(message);
+  }
 
-    try {
-        const response = await openai.embeddings.create({
-            model: "text-embedding-3-small",
-            input: message.content
-        });
+  // Case 2: Message object from MongoDB
+  if (message.messageType !== "text") {
+    message.embedding = [];
+    await message.save();
+    return;
+  }
 
-        const embeddingVector = response.data[0].embedding;
-        message.embedding = embeddingVector;
-        await message.save();
-        console.log("✅ embedding saved for message:", message._id);
-    } catch (error) {
-        console.error("❌ error generating embedding:", error);
-        // Even if embedding fails, set to default and save
-        message.embedding = [];
-        await message.save();
-        console.log("⚠️ Set default embedding due to API error");
-    }
+  try {
+    const embeddingVector = await createEmbedding(message.content);
+    message.embedding = embeddingVector;
+    await message.save();
+    console.log("✅ Embedding saved for message:", message._id);
+  } catch (error) {
+    console.error("❌ Error generating embedding:", error);
+    message.embedding = [];
+    await message.save();
+    console.log("⚠️ Set default embedding due to API error");
+  }
 }
+
 export { generateEmbeddingForMessage };

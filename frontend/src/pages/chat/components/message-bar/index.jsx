@@ -16,6 +16,8 @@ const MessageBar = () => {
     const { socket } = useSocket();
 
     const [message, setMessage] = useState("");
+    const [isComposing, setIsComposing] = useState(false);
+    const sendingRef = useRef(false);
     const [emojiStickerOpen, setEmojiStickerOpen] = useState(false);
     const emojiRef = useRef(null);
 
@@ -37,6 +39,7 @@ const MessageBar = () => {
     };
 
     const handleSendMessage = () => {
+        if (sendingRef.current) return; // prevent rapid double sends
         console.log("Message content:", message);
         console.log("Selected chat data:", selectedChatData);
       
@@ -60,22 +63,11 @@ const MessageBar = () => {
         console.log("Sending message to server:", messageData);
         
         // Send message to server
-        socket.emit("sendMessage", messageData);
-        
-        // Also create a temporary message for immediate display
-        const localMessageData = {
-            _id: `temp-${Date.now()}`,
-            content: message,
-            receiver: [{ _id: selectedChatData?.contactId }],
-            sender: { _id: user._id },
-            createdAt: new Date().toISOString()
-        };
-        
-        console.log("Adding local message to state:", localMessageData);
-        
-        // Add local message to state for immediate display
-        dispatch(addNewMessage(localMessageData));
-        
+        sendingRef.current = true;
+        socket.emit("sendMessage", messageData, () => {
+            // optional ack callback
+            sendingRef.current = false;
+        });
         // Clear input field
         setMessage("");
     };
@@ -87,7 +79,14 @@ const MessageBar = () => {
                     type="text"
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
+                    onCompositionStart={() => setIsComposing(true)}
+                    onCompositionEnd={() => setIsComposing(false)}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter" && !e.shiftKey && !isComposing) {
+                            e.preventDefault();
+                            handleSendMessage();
+                        }
+                    }}
                     placeholder="Type a message..."
                     className="flex-1 bg-transparent text-white rounded-lg px-4 py-4 
                     focus:border-none focus:outline-none"
