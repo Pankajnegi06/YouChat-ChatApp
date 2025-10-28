@@ -62,7 +62,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
-app.use("/user", router);
+app.use("api/user", router);
 app.use("/contacts", contacts);
 app.use("/messages",messageRouter)
 app.use("/search",ragRouter)

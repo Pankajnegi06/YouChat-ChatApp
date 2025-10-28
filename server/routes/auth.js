@@ -5,12 +5,12 @@ import { verifyjwt } from '../middlewares/verifyjwt.js';
 
 const router = express.Router();
 
-router.route("/api/signup").post(upload.single("image"), SignUp);
-router.route("/api/Login").post(Login);
+router.route("/signup").post(upload.single("image"), SignUp);
+router.route("/Login").post(Login);
 router.get("/getUserInfo", verifyjwt, getUserInfo);
 router.post("/ProfileSetup", verifyjwt,upload.single("image"), ProfileSetup);
 
-router.get("/api/logout", verifyjwt, logout);
+router.get("/logout", verifyjwt, logout);
 
 
 export { router }; 
