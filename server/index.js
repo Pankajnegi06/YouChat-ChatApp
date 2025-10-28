@@ -45,7 +45,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 app.use((req, res, next) => {
-  const allowedOrigins = ['http://localhost:5173', 'https://youchat-chatapp.onrender.com', 'https://you-chat-chat-app.vercel.app'];
+  const allowedOrigins = ['http://localhost:5173','https://you-chat-chat-app.vercel.app', 'https://youchat-chatapp.onrender.com', 'https://you-chat-chat-app.vercel.app'];
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
     res.header('Access-Control-Allow-Origin', origin);
