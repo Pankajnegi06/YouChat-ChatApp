@@ -1,7 +1,7 @@
 
-export const API_BASE_URL = 'http://localhost:8000' ;
+export const API_BASE_URL = 'https://youchat-chatapp.onrender.com' ;
 export const USER_API_PATH = '/user';
-export const SOCKET_URL = 'http://localhost:8000' 
+export const SOCKET_URL = 'https://youchat-chatapp.onrender.com' 
 
 // Full path for user-related endpoints
 export const USER_API_URL = `${API_BASE_URL}${USER_API_PATH}`;
