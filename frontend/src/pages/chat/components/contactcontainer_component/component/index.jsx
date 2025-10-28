@@ -26,6 +26,7 @@ import {
   setSelectedChatType,
 } from "@/store/chatSlice";
 import { API_ENDPOINTS } from "@/lib/apiConfig";
+import { Button } from "@/components/ui/button";
 
 function NewDm() {
   const dispatch = useDispatch();
@@ -33,6 +34,9 @@ function NewDm() {
   const [searchContact, setSearchContact] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [searchError, setSearchError] = useState(null);
+  const [openCreateGroup, setOpenCreateGroup] = useState(false);
+  const [groupName, setGroupName] = useState("");
+  const [creatingGroup, setCreatingGroup] = useState(false);
 
   const handleSearchContacts = async (searchTerm) => {
     const trimmedTerm = searchTerm.trim();
@@ -81,6 +85,22 @@ function NewDm() {
     setSearchError(null);
   };
 
+  const createGroup = async () => {
+    if (!groupName.trim()) return;
+    try {
+      setCreatingGroup(true);
+      const res = await axios.post(API_ENDPOINTS.groups.create, { name: groupName }, { withCredentials: true });
+      if (res.status === 201) {
+        setOpenCreateGroup(false);
+        setGroupName("");
+      }
+    } catch (e) {
+      console.error("Create group failed", e);
+    } finally {
+      setCreatingGroup(false);
+    }
+  };
+
   return (
     <TooltipProvider>
       <Tooltip>
@@ -97,6 +117,10 @@ function NewDm() {
           <p>New direct message</p>
         </TooltipContent>
       </Tooltip>
+
+      <div className="px-5 mt-2">
+        <Button size="sm" variant="outline" className="w-full justify-center" onClick={() => setOpenCreateGroup(true)}>Create group</Button>
+      </div>
 
       <Dialog open={openNewContactModel} onOpenChange={handleCloseDialog}>
         <DialogContent className="bg-[#181920] border-none text-white w-[400px] h-[400px] flex flex-col">
@@ -193,6 +217,19 @@ function NewDm() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {openCreateGroup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="w-full max-w-sm rounded-2xl border border-white/10 bg-[oklch(0.16_0.03_265_/0.7)] backdrop-blur-xl p-5 space-y-3">
+            <div className="text-lg font-medium">Create group</div>
+            <input value={groupName} onChange={(e) => setGroupName(e.target.value)} placeholder="Group name" className="w-full h-10 px-3 rounded-md bg-black/20 border border-white/10 outline-none focus:ring-2 focus:ring-white/20" />
+            <div className="flex justify-end gap-2">
+              <button onClick={() => setOpenCreateGroup(false)} className="px-3 py-1.5 rounded-md bg-white/10">Cancel</button>
+              <button disabled={creatingGroup} onClick={createGroup} className="px-3 py-1.5 rounded-md bg-gradient-to-r from-indigo-500 via-fuchsia-500 to-purple-600 text-white disabled:opacity-50">Create</button>
+            </div>
+          </div>
+        </div>
+      )}
     </TooltipProvider>
   );
 }

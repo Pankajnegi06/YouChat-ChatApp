@@ -27,7 +27,16 @@ export const API_ENDPOINTS = {
   
   // Messages endpoints
   messages: {
-    getMessagesForContact: `${API_BASE_URL}/messages/getMessagesForContact`
+    getMessagesForContact: `${API_BASE_URL}/messages/getMessagesForContact`,
+    upload: `${API_BASE_URL}/messages/upload`
+  },
+
+  // Groups endpoints
+  groups: {
+    create: `${API_BASE_URL}/groups/create`,
+    list: `${API_BASE_URL}/groups/list`,
+    addMember: `${API_BASE_URL}/groups/add-member`,
+    removeMember: `${API_BASE_URL}/groups/remove-member`
   }
 };
 

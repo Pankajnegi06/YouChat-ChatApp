@@ -20,6 +20,8 @@ const MessageBar = () => {
     const sendingRef = useRef(false);
     const [emojiStickerOpen, setEmojiStickerOpen] = useState(false);
     const emojiRef = useRef(null);
+    const fileInputRef = useRef(null);
+    const [uploading, setUploading] = useState(false);
 
     useEffect(() => {
         function handleClickOutside(event) {
@@ -72,9 +74,35 @@ const MessageBar = () => {
         setMessage("");
     };
 
+    const handlePickFile = () => fileInputRef.current?.click();
+
+    const handleUploadFile = async (e) => {
+        try {
+            const file = e.target.files?.[0];
+            if (!file) return;
+            if (!(selectedChatData?.contactId || selectedChatData?._id)) return;
+            setUploading(true);
+            const form = new FormData();
+            form.append("file", file);
+            form.append("receiver", selectedChatData?.contactId || selectedChatData._id);
+
+            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL || ''}/messages/upload`, {
+                method: 'POST',
+                credentials: 'include',
+                body: form,
+            });
+            if (!res.ok) throw new Error('Upload failed');
+            e.target.value = '';
+        } catch (err) {
+            console.error("File upload error", err);
+        } finally {
+            setUploading(false);
+        }
+    }
+
     return (
-        <div className="px-8  h-[10vh] bg-[#1c1d25] flex justify-center items-center relative">
-            <div className="flex-1  items-center gap-5 pr-5 flex bg-[#2a2b33] rounded-md relative">
+        <div className="px-8 h-[10vh] bg-transparent flex justify-center items-center relative">
+            <div className="flex-1 items-center gap-3 pr-3 flex rounded-full border border-white/10 bg-white/5 backdrop-blur-xl relative">
                 <input
                     type="text"
                     value={message}
@@ -88,8 +116,7 @@ const MessageBar = () => {
                         }
                     }}
                     placeholder="Type a message..."
-                    className="flex-1 bg-transparent text-white rounded-lg px-4 py-4 
-                    focus:border-none focus:outline-none"
+                    className="flex-1 bg-transparent text-white rounded-full px-4 py-3 focus:border-none focus:outline-none"
                 />
                 
                 <div className="relative">
@@ -103,16 +130,17 @@ const MessageBar = () => {
                     )}
                 </div>
 
-                <button className="text-neutral-500 focus:border-none focus:outline-none focus:text-white duration-300 transition-all">
-                    <GrAttachment className="text-white text-2xl cursor-pointer" />
+                <input ref={fileInputRef} type="file" className="hidden" onChange={handleUploadFile} />
+                <button onClick={handlePickFile} disabled={uploading} className="text-neutral-500 focus:border-none focus:outline-none focus:text-white duration-300 transition-all disabled:opacity-50">
+                    <GrAttachment className="text-white/80 text-2xl cursor-pointer" />
                 </button>
 
             </div>
                 <button
                     onClick={handleSendMessage}
-                    className=" bg-[#8417ff] hover:bg-[#741bda] rounded-md focus:bg-[#741bda]  focus:border-none focus:outline-none p-4 focus:text-white duration-300 transition-all ml-2 text-white"
+                    className="ml-2 h-12 w-12 rounded-full bg-gradient-to-br from-indigo-500 via-fuchsia-500 to-purple-600 hover:brightness-110 active:brightness-95 text-white grid place-items-center shadow-[0_8px_30px_-10px_rgba(139,92,246,0.7)]"
                 >
-                    <IoSend className="text-2xl"/>
+                    <IoSend className="text-xl"/>
                 </button>
         </div>
     );

@@ -62,7 +62,7 @@ const RagSidebar = ({ open, onClose }) => {
 
       {/* Panel */}
       <aside
-        className={`pointer-events-auto absolute right-0 top-0 h-full w-[380px] md:w-[420px] lg:w-[480px] bg-[#1c1d25] border-l border-white/10 shadow-2xl transform transition-transform duration-300 ${
+        className={`pointer-events-auto absolute right-0 top-0 h-full w-[380px] md:w-[420px] lg:w-[480px] bg-[oklch(0.14_0.03_265_/0.6)] backdrop-blur-xl border-l border-white/10 shadow-2xl transform transition-transform duration-300 ${
           open ? "translate-x-0" : "translate-x-full"
         }`}
         role="dialog"
@@ -70,13 +70,17 @@ const RagSidebar = ({ open, onClose }) => {
       >
         <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
           <div className="flex items-center gap-2">
-            <img
-              src="https://img.icons8.com/pulsar-gradient/48/why-us-female.png"
-              alt="RAG Assistant"
-              width={24}
-              height={24}
-            />
-            <h3 className="text-white font-medium">RAG Assistant</h3>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="g" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#6366f1" />
+                  <stop offset="1" stop-color="#a855f7" />
+                </linearGradient>
+              </defs>
+              <path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z" stroke="url(#g)" stroke-width="1.5" fill="transparent"/>
+              <path d="M12 7l4 2.25v4.5L12 16l-4-2.25v-4.5L12 7z" fill="url(#g)" opacity="0.6"/>
+            </svg>
+            <h3 className="text-white font-medium">Assistant</h3>
           </div>
           <button
             onClick={onClose}
@@ -111,10 +115,10 @@ const RagSidebar = ({ open, onClose }) => {
         </div>
 
         {/* Composer */}
-        <div className="absolute bottom-0 left-0 right-0 p-3 border-t border-white/10 bg-[#1c1d25]">
+        <div className="absolute bottom-0 left-0 right-0 p-3 border-t border-white/10 bg-transparent">
           <div className="flex items-center gap-2">
             <input
-              className="flex-1 bg-[#2a2b33] text-white rounded-md px-3 py-3 focus:outline-none"
+              className="flex-1 bg-white/5 border border-white/10 text-white rounded-full px-4 py-3 focus:outline-none backdrop-blur-xl"
               placeholder="Ask the assistant..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -129,7 +133,7 @@ const RagSidebar = ({ open, onClose }) => {
             />
             <button
               onClick={sendMessage}
-              className="bg-[#8417ff] hover:bg-[#741bda] text-white px-4 py-3 rounded-md"
+              className="h-11 px-5 rounded-full bg-gradient-to-r from-indigo-500 via-fuchsia-500 to-purple-600 hover:brightness-110 active:brightness-95 text-white"
             >
               Send
             </button>

@@ -98,15 +98,15 @@ function MessageContainer() {
       <div className={`flex ${isSender ? "justify-end" : "justify-start"} mb-2`}>
         <div className="w-auto">
           <div
-            className={`border inline-block p-4 px-7 my-1 text-lg break-words ${
+            className={`inline-block my-1 text-[15px] break-words rounded-2xl px-4 py-2.5 border shadow-[0_8px_30px_-12px_rgba(0,0,0,0.6)] ${
               isSender
-                ? "bg-[#8417ff]/5 text-[#8417ff]/90 border-[#8417ff]/50"
-                : "bg-[#2a2b33]/5 text-white/80 border-[#ffffff]/20"
+                ? "bg-gradient-to-br from-violet-600/20 to-fuchsia-500/15 text-violet-100 border-violet-500/30"
+                : "bg-white/5 text-white/85 border-white/10"
             }`}
           >
             {messageText}
           </div>
-          <div className="text-xs text-gray-600 mt-1">
+          <div className="text-[11px] text-white/50 mt-1">
             {moment(message.createdAt).format("LT")}
           </div>
         </div>

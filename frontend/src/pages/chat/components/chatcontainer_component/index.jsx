@@ -8,7 +8,7 @@ import RagSidebar from '../rag-sidebar/index.jsx'
 function ChatContainer() {
   const [showRag, setShowRag] = useState(false)
   return (
-    <div className='fixed top-0 h-[100vh] w-[100vw] bg-[#1c1d25] flex flex-col md:static md:flex-1'>
+    <div className='fixed top-0 h-[100vh] w-[100vw] flex flex-col md:static md:flex-1 bg-[oklch(0.14_0.03_265_/0.7)] backdrop-blur-xl'>
       <ChatHeader/>
       <MessageContainer/>
       <img

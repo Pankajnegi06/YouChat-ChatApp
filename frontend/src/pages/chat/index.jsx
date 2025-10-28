@@ -21,7 +21,7 @@ function Chat() {
   }, [user, navigate])
 
   return (
-    <div className='flex h-[100vh] text-white overflow-hidden'>
+    <div className='flex h-[100vh] text-white overflow-hidden bg-transparent'>
       <ContactContainer />
       {!selectedChatData ? <EmptyChat /> : <ChatContainer />} 
     </div>

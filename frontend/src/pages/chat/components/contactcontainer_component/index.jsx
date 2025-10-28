@@ -25,7 +25,7 @@ function ContactContainer() {
     getContacts();
   }, []);
   return (
-    <div className="relative md:w-[35vw] lg:w-[30vw] xl:w-[20vw] bg-[#1b1c24] border-r-2 w-full">
+    <div className="relative md:w-[35vw] lg:w-[30vw] xl:w-[20vw] border-r border-white/10 w-full bg-[oklch(0.16_0.03_265)]/60 backdrop-blur-xl">
       <div className="pt-4">
         <Logo />
       </div>
@@ -52,7 +52,7 @@ export default ContactContainer;
 
 const Logo = () => {
   return (
-    <div className="flex p-5  justify-start items-center gap-2">
+    <div className="flex p-5 justify-start items-center gap-2">
       <svg
         id="logo-38"
         width="78"
@@ -78,7 +78,7 @@ const Logo = () => {
           fill="#a16ee8"
         ></path>{" "}
       </svg>
-      <span className="text-3xl font-semibold ">YouChat</span>
+      <span className="text-3xl font-semibold">YouChat</span>
     </div>
   );
 };
