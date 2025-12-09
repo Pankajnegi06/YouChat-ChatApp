@@ -39,7 +39,7 @@ const RagSidebar = ({ open, onClose }) => {
     sendingRef.current = true;
 
     try {
-      const response = await axios.post("http://localhost:8000/search/ask", { query: trimmed });
+      const response = await axios.post("https://youchat-chatapp.onrender.com/search/ask", { query: trimmed });
       const answer = response?.data?.answer ?? "";
       const botMsg = { id: `a-${Date.now()}`, role: "assistant", content: answer };
       setMessages((prev) => [...prev, botMsg]);
