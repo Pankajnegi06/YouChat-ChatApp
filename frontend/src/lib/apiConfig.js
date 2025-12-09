@@ -1,0 +1,57 @@
+export const API_BASE_URL =
+  import.meta.env.MODE === 'development'
+    ? 'http://localhost:8000'
+    : 'https://youchat-chatapp.onrender.com';
+
+export const USER_API_PATH = '/api/user';
+export const SOCKET_URL =
+  import.meta.env.MODE === 'development'
+    ? 'http://localhost:8000'
+    : 'https://youchat-chatapp.onrender.com';
+
+
+// Full path for user-related endpoints
+export const USER_API_URL = `${API_BASE_URL}${USER_API_PATH}`;
+
+// API endpoint URLs organized by domain
+export const API_ENDPOINTS = {
+  // User endpoints
+  user: {
+    base: USER_API_URL,
+    Login: `${API_BASE_URL}/api/user/Login`,
+    signup: `${API_BASE_URL}/api/user/signup`,
+    logout: `${API_BASE_URL}/api/user/logout`,
+    refreshToken: `${API_BASE_URL}/api/user/refresh-token`,
+    getUserInfo: `${API_BASE_URL}/api/user/getUserInfo`,
+    profileSetup: `${API_BASE_URL}/api/user/ProfileSetup`
+  },
+  
+  // Contacts endpoints
+  contacts: {
+    getContactList: `${API_BASE_URL}/contacts/getContactDmList`,
+    searchContacts: `${API_BASE_URL}/contacts/SearchContacts`
+  },
+  
+  // Messages endpoints
+  messages: {
+    getMessagesForContact: `${API_BASE_URL}/messages/getMessagesForContact`,
+    upload: `${API_BASE_URL}/messages/upload`
+  },
+
+  // Groups endpoints
+  groups: {
+    create: `${API_BASE_URL}/groups/create`,
+    list: `${API_BASE_URL}/groups/list`,
+    addMember: `${API_BASE_URL}/groups/add-member`,
+    removeMember: `${API_BASE_URL}/groups/remove-member`
+  }
+};
+
+// Socket configuration
+export const getSocketConfig = () => ({
+  url: SOCKET_URL,
+  options: {
+    withCredentials: true,
+    transports: ['websocket']
+  }
+});
