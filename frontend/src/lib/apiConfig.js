@@ -1,13 +1,7 @@
-export const API_BASE_URL =
-  import.meta.env.MODE === 'development'
-    ? 'http://localhost:8000'
-    : 'https://youchat-chatapp.onrender.com';
-
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 export const USER_API_PATH = '/api/user';
-export const SOCKET_URL =
-  import.meta.env.MODE === 'development'
-    ? 'http://localhost:8000'
-    : 'https://youchat-chatapp.onrender.com';
+export const SOCKET_URL = import.meta.env.VITE_SOCKET_URL;
+
 
 
 // Full path for user-related endpoints
