@@ -7,7 +7,7 @@ const userSocketMap = new Map();
 export const setupSocket = (server) => {
     const io = new SocketIoServer(server, {
         cors: {
-            origin: ['http://localhost:5173','https://youchat-chatapp.onrender.com'],
+            origin: ['http://localhost:5173','https://youchat-chatapp.onrender.com','https://youchat-chatapp.vercel.app'],
             credentials: true,
             methods: ['GET', 'POST'],
         }
