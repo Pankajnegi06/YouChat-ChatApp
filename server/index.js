@@ -35,7 +35,7 @@ setupSocket(server);
 
 // CORS configuration
 const corsOptions = {
-  origin: ['http://localhost:5173', 'https://youchat-chatapp.onrender.com', 'https://you-chat-chat-app.vercel.app'],
+  origin: ['http://localhost:5173', 'https://youchat-chatapp.onrender.com', 'https://you-chat-chat-app.vercel.app','https://youchat-chatapp.vercel.app'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
