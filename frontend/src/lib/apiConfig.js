@@ -29,7 +29,9 @@ export const API_ENDPOINTS = {
   // Messages endpoints
   messages: {
     getMessagesForContact: `${API_BASE_URL}/messages/getMessagesForContact`,
-    upload: `${API_BASE_URL}/messages/upload`
+    getGroupMessages: `${API_BASE_URL}/messages/getGroupMessages`,
+    upload: `${API_BASE_URL}/messages/upload`,
+    delete: `${API_BASE_URL}/messages/delete`
   },
 
   // Groups endpoints
@@ -37,7 +39,9 @@ export const API_ENDPOINTS = {
     create: `${API_BASE_URL}/groups/create`,
     list: `${API_BASE_URL}/groups/list`,
     addMember: `${API_BASE_URL}/groups/add-member`,
-    removeMember: `${API_BASE_URL}/groups/remove-member`
+    removeMember: `${API_BASE_URL}/groups/remove-member`,
+    delete: `${API_BASE_URL}/groups/delete`,
+    leave: `${API_BASE_URL}/groups/leave`
   }
 };
 

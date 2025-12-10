@@ -7,12 +7,12 @@ import { GrAttachment } from "react-icons/gr";
 import { IoSend } from 'react-icons/io5';
 import { RiEmojiStickerLine } from 'react-icons/ri';
 import { selectUser } from "@/store/userSlice";
+import { API_ENDPOINTS } from "@/lib/apiConfig";
 
 const MessageBar = () => {
     const user = useSelector(selectUser);
     const dispatch = useDispatch();
     const { selectedChatData } = useSelector(chatData);
-    const currentMessages = useSelector(state => state.chat.selectedChatMessages);
     const { socket } = useSocket();
 
     const [message, setMessage] = useState("");
@@ -41,37 +41,47 @@ const MessageBar = () => {
     };
 
     const handleSendMessage = () => {
-        if (sendingRef.current) return; // prevent rapid double sends
-        console.log("Message content:", message);
-        console.log("Selected chat data:", selectedChatData);
+        if (sendingRef.current) return;
       
         if (!message.trim() || !(selectedChatData?.contactId || selectedChatData?._id)) {
-            console.log("Missing message content or contact ID");
             return;
         }
-        
 
-        // Format the message properly for the server
-        // The receiver must be an array of IDs to match the Message schema
+        // Get receiver ID - ensure it's a string, not an array
+        let receiverId = selectedChatData?.contactId || selectedChatData._id;
+        if (Array.isArray(receiverId)) {
+            receiverId = receiverId[0];
+        }
+        
         const messageData = {
             content: message,
-            receiver: [selectedChatData?.contactId || selectedChatData._id], // Array with single ID to match schema
+            receiver: [receiverId],
             messageType: "text",
             fileUrl: null,
             sender: user._id,
             createdAt: new Date().toISOString()
         };
         
-        console.log("Sending message to server:", messageData);
+        const currentMessage = message.trim();
         
-        // Send message to server
+        const optimisticMessage = {
+            _id: `temp-${Date.now()}`,
+            content: currentMessage,
+            sender: user._id,
+            receiver: [receiverId],
+            createdAt: new Date().toISOString(),
+            messageType: "text"
+        };
+        dispatch(addNewMessage(optimisticMessage));
+        
+        setMessage("");
+        
         sendingRef.current = true;
+        setTimeout(() => { sendingRef.current = false; }, 500);
+        
         socket.emit("sendMessage", messageData, () => {
-            // optional ack callback
             sendingRef.current = false;
         });
-        // Clear input field
-        setMessage("");
     };
 
     const handlePickFile = () => fileInputRef.current?.click();
@@ -81,28 +91,38 @@ const MessageBar = () => {
             const file = e.target.files?.[0];
             if (!file) return;
             if (!(selectedChatData?.contactId || selectedChatData?._id)) return;
+            
             setUploading(true);
             const form = new FormData();
             form.append("file", file);
             form.append("receiver", selectedChatData?.contactId || selectedChatData._id);
 
-            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL || ''}/messages/upload`, {
+            const res = await fetch(API_ENDPOINTS.messages.upload, {
                 method: 'POST',
                 credentials: 'include',
                 body: form,
             });
+            
             if (!res.ok) throw new Error('Upload failed');
+            
+            const data = await res.json();
+            
+            // Add file message to UI
+            if (data.message) {
+                dispatch(addNewMessage(data.message));
+            }
+            
             e.target.value = '';
         } catch (err) {
             console.error("File upload error", err);
         } finally {
             setUploading(false);
         }
-    }
+    };
 
     return (
         <div className="px-8 h-[10vh] bg-transparent flex justify-center items-center relative">
-            <div className="flex-1 items-center gap-3 pr-3 flex rounded-full border border-white/10 bg-white/5 backdrop-blur-xl relative">
+            <div className="flex-1 flex items-center gap-2 pr-4 rounded-full border border-white/10 bg-white/5 backdrop-blur-xl">
                 <input
                     type="text"
                     value={message}
@@ -116,32 +136,56 @@ const MessageBar = () => {
                         }
                     }}
                     placeholder="Type a message..."
-                    className="flex-1 bg-transparent text-white rounded-full px-4 py-3 focus:border-none focus:outline-none"
+                    className="flex-1 bg-transparent text-white rounded-full px-5 py-3 focus:border-none focus:outline-none"
                 />
                 
-                <div className="relative">
-                    <button onClick={() => setEmojiStickerOpen(prev => !prev)} className="text-neutral-500 focus:border-none focus:outline-none focus:text-white duration-300 transition-all">
-                        <RiEmojiStickerLine className="cursor-pointer text-2xl text-white" />
+                {/* Icon buttons container - aligned to the right */}
+                <div className="flex items-center gap-3">
+                    {/* Emoji Picker */}
+                    <div className="relative">
+                        <button 
+                            onClick={() => setEmojiStickerOpen(prev => !prev)} 
+                            className="p-2 rounded-full hover:bg-white/10 transition-colors duration-200"
+                        >
+                            <RiEmojiStickerLine className="text-xl text-white/70 hover:text-white transition-colors" />
+                        </button>
+                        {emojiStickerOpen && (
+                            <div ref={emojiRef} className="absolute bottom-14 right-0 z-50">
+                                <EmojiPicker onEmojiClick={handleAddEmoji} theme="dark" />
+                            </div>
+                        )}
+                    </div>
+
+                    {/* File Upload */}
+                    <input 
+                        ref={fileInputRef} 
+                        type="file" 
+                        className="hidden" 
+                        onChange={handleUploadFile}
+                        accept="image/*,.pdf,.doc,.docx,.txt"
+                    />
+                    <button 
+                        onClick={handlePickFile} 
+                        disabled={uploading} 
+                        className="p-2 rounded-full hover:bg-white/10 transition-colors duration-200 disabled:opacity-50"
+                    >
+                        {uploading ? (
+                            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        ) : (
+                            <GrAttachment className="text-lg text-white/70 hover:text-white transition-colors" />
+                        )}
                     </button>
-                    {emojiStickerOpen && (
-                        <div ref={emojiRef} className="absolute bottom-12 right-0 z-50">
-                            <EmojiPicker onEmojiClick={handleAddEmoji} />
-                        </div>
-                    )}
                 </div>
-
-                <input ref={fileInputRef} type="file" className="hidden" onChange={handleUploadFile} />
-                <button onClick={handlePickFile} disabled={uploading} className="text-neutral-500 focus:border-none focus:outline-none focus:text-white duration-300 transition-all disabled:opacity-50">
-                    <GrAttachment className="text-white/80 text-2xl cursor-pointer" />
-                </button>
-
             </div>
-                <button
-                    onClick={handleSendMessage}
-                    className="ml-2 h-12 w-12 rounded-full bg-gradient-to-br from-indigo-500 via-fuchsia-500 to-purple-600 hover:brightness-110 active:brightness-95 text-white grid place-items-center shadow-[0_8px_30px_-10px_rgba(139,92,246,0.7)]"
-                >
-                    <IoSend className="text-xl"/>
-                </button>
+            
+            {/* Send Button */}
+            <button
+                onClick={handleSendMessage}
+                disabled={!message.trim()}
+                className="ml-3 h-12 w-12 rounded-full bg-gradient-to-br from-violet-600 via-fuchsia-600 to-purple-600 hover:shadow-[0_0_25px_rgba(139,92,246,0.5)] hover:scale-105 active:scale-95 text-white grid place-items-center shadow-lg transition-all duration-200 disabled:opacity-50 disabled:hover:scale-100 disabled:hover:shadow-lg"
+            >
+                <IoSend className="text-lg"/>
+            </button>
         </div>
     );
 };

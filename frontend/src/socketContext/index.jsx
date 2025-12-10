@@ -1,10 +1,9 @@
-import { addNewMessage, chatData, chatMessages } from "@/store/chatSlice";
 import { selectUser } from "@/store/userSlice";
-import { createContext, useContext, useEffect, useRef, useState, useCallback } from "react";
-import { IoConstructOutline } from "react-icons/io5";
-import { useDispatch, useSelector } from "react-redux";
+import { addContactToDMs } from "@/store/chatSlice";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { io } from "socket.io-client";
-import { SOCKET_URL, getSocketConfig } from "@/lib/apiConfig";
+import { getSocketConfig } from "@/lib/apiConfig";
 
 const socketContext = createContext(null);
 
@@ -13,53 +12,13 @@ export const useSocket = () => {
 };
 
 export const SocketProvider = ({ children }) => {
-    
-    const socket = useRef();
+    const socketRef = useRef(null);
     const userInfo = useSelector(selectUser);
-    const MessageArray = useSelector(chatMessages);
-    const messageArrayRef = useRef(MessageArray);
+    const dispatch = useDispatch();
     const [isConnected, setIsConnected] = useState(false);
     const [connectionError, setConnectionError] = useState(null);
-    const dispatch = useDispatch();
-    
-    
-    // Correctly fetch state using useSelector
-    const { selectedChatData, selectedChatType } = useSelector(chatData);
-
-    // Stable message handler with proper dependencies
-    const handleReceiveMessage = useCallback((message) => {
-        try {
-            console.log(message)
-              
-           
-            if (!message.sender || !message.receiver[0] || !message.content) {
-                console.error('Message missing required fields:', message);
-                return;
-            }
-            
-            const isRelevant = selectedChatData?.contactId && (
-                selectedChatData.contactId == message?.sender?._id || 
-                selectedChatData.contactId == message?.receiver?.[0]?._id
-            );
-            
-            
-            if (selectedChatType !== undefined && isRelevant) {
-                console.log('Processing message for current chat:', message.content);
-                dispatch(addNewMessage(message));
-                
-               
-            } else {
-                console.log('Message received but not for current chat:', message);
-            }
-        } catch (error) {
-            console.error('Error processing message:', error, message);
-        }
-    }, [dispatch, selectedChatData, selectedChatType]); 
-
-    
-    useEffect(()=>{
-        messageArrayRef.current = MessageArray;
-    },[MessageArray])
+    // Use state to track socket instance so context updates when socket is ready
+    const [socketInstance, setSocketInstance] = useState(null);
 
     useEffect(() => {
         if (!userInfo?._id) {
@@ -67,80 +26,111 @@ export const SocketProvider = ({ children }) => {
             return;
         }
 
-        // Initialize socket connection
-        const initializeSocket = () => {
+        // Only initialize if not already connected
+        if (socketRef.current?.connected) {
+            console.log('Socket already connected');
+            return;
+        }
 
-            console.log('Initializing socket connection for user:', userInfo._id);
+        console.log('Initializing socket connection for user:', userInfo._id);
+        setConnectionError(null);
+
+        const socketConfig = getSocketConfig();
+        const newSocket = io(socketConfig.url, { 
+            ...socketConfig.options,
+            query: { userId: userInfo._id },
+            reconnectionAttempts: 5,
+            reconnectionDelay: 1000,
+            timeout: 20000
+        });
+
+        socketRef.current = newSocket;
+        setSocketInstance(newSocket); // This triggers re-render so context updates
+
+        // Connection handlers
+        newSocket.on("connect", () => {
+            console.log("Successfully connected to socket server");
+            setIsConnected(true);
             setConnectionError(null);
+        });
 
-            const socketConfig = getSocketConfig();
-            socket.current = io(socketConfig.url, { 
-                ...socketConfig.options,
-                query: { userId: userInfo._id },
-                reconnectionAttempts: 5,
-                reconnectionDelay: 1000,
-                timeout: 20000
-            });
+        newSocket.on("disconnect", (reason) => {
+            console.log("Disconnected from socket server. Reason:", reason);
+            setIsConnected(false);
+            if (reason === "io server disconnect") {
+                setConnectionError("Server disconnected. Please refresh.");
+            }
+        });
 
-            // Connection handlers
-            socket.current.on("connect", () => {
-                console.log("Successfully connected to socket server");
-                setIsConnected(true);
-                setConnectionError(null);
-            });
+        newSocket.on("connect_error", (err) => {
+            console.error("Socket connection error:", err.message);
+            setConnectionError(err.message);
+            setIsConnected(false);
+        });
 
-            socket.current.on("disconnect", (reason) => {
-                console.log("Disconnected from socket server. Reason:", reason);
-                setIsConnected(false);
-                if (reason === "io server disconnect") {
-                    setConnectionError("Server disconnected. Please refresh.");
-                }
-            });
+        newSocket.on("reconnect_attempt", (attempt) => {
+            console.log(`Reconnect attempt ${attempt}`);
+        });
 
-            socket.current.on("connect_error", (err) => {
-                console.error("Socket connection error:", err.message);
-                setConnectionError(err.message);
-                setIsConnected(false);
-            });
+        newSocket.on("reconnect_failed", () => {
+            console.error("Reconnect failed");
+            setConnectionError("Unable to reconnect. Please refresh the page.");
+        });
 
-            socket.current.on("reconnect_attempt", (attempt) => {
-                console.log(`Reconnect attempt ${attempt}`);
-            });
-
-            socket.current.on("reconnect_failed", () => {
-                console.error("Reconnect failed");
-                setConnectionError("Unable to reconnect. Please refresh the page.");
-            });
-
-            // Message handler
-            socket.current.on("receiveMessages", handleReceiveMessage);
-        };
-
-        initializeSocket();
+        // Global listener for auto-adding contacts when receiving messages
+        newSocket.on("receiveMessages", (message) => {
+            // Extract sender info
+            const sender = message.sender;
+            const senderId = typeof sender === 'object' ? sender?._id : sender;
+            
+            // Check if user is the receiver (not the sender)
+            const receiverIds = Array.isArray(message.receiver) 
+                ? message.receiver.map(r => typeof r === 'object' ? r?._id : r)
+                : [];
+            const amIReceiver = receiverIds.includes(userInfo._id);
+            
+            // If I received a message and sender has full info, add to DMs
+            if (amIReceiver && senderId !== userInfo._id && typeof sender === 'object') {
+                console.log('Auto-adding sender to DMs:', sender);
+                dispatch(addContactToDMs({
+                    // contactId must be an array to match backend format
+                    contactId: [sender._id],
+                    _id: sender._id,
+                    firstName: sender.firstName || '',
+                    lastName: sender.lastName || '',
+                    email: sender.email || '',
+                    image: sender.image || '',
+                    color: sender.color || 0
+                }));
+            }
+        });
 
         // Cleanup function
         return () => {
             console.log('Cleaning up socket connection');
-            if (socket.current) {
-                socket.current.off("receiveMessages", handleReceiveMessage);
-                socket.current.off("connect");
-                socket.current.off("disconnect");
-                socket.current.off("connect_error");
-                socket.current.disconnect();
+            if (socketRef.current) {
+                socketRef.current.off("connect");
+                socketRef.current.off("disconnect");
+                socketRef.current.off("connect_error");
+                socketRef.current.off("reconnect_attempt");
+                socketRef.current.off("reconnect_failed");
+                socketRef.current.off("receiveMessages");
+                socketRef.current.disconnect();
+                socketRef.current = null;
+                setSocketInstance(null);
                 setIsConnected(false);
             }
         };
-    }, [userInfo?._id, handleReceiveMessage]); // Added handleReceiveMessage to dependencies
+    }, [userInfo?._id, dispatch]);
     
     const value = {
-        socket: socket.current,
-       
+        socket: socketInstance, // Now uses state, so context updates when socket is ready
         isConnected,
         connectionError,
-        checkConnection: () => socket.current?.connected || false,
+        checkConnection: () => socketRef.current?.connected || false,
         reconnect: () => {
-            if (socket.current && !socket.current.connected) {
-                socket.current.connect();
+            if (socketRef.current && !socketRef.current.connected) {
+                socketRef.current.connect();
             }
         }
     };
