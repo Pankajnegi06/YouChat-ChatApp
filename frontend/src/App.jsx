@@ -30,7 +30,21 @@ function App() {
     return isAuthenticated ? <Navigate to="/chat"/> : children
   }
 
+  // Helper function to check if auth cookies exist
+  const hasAuthCookies = () => {
+    const cookies = document.cookie;
+    return cookies.includes('accessToken') || cookies.includes('refreshToken');
+  };
+
   const getUserInfo = async () => {
+    // Skip API call if no auth cookies exist - prevents cold start delay
+    if (!hasAuthCookies()) {
+      console.log("No auth cookies found, skipping getUserInfo call");
+      dispatch(clearUserInfo());
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const response = await axios.get(API_ENDPOINTS.user.getUserInfo, {withCredentials:true});
       
